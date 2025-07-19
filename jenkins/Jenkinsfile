@@ -2,96 +2,33 @@ pipeline {
     agent any
 
     environment {
-        ARM_CLIENT_ID = credentials('jenkins-arm-client-id')
-        ARM_CLIENT_SECRET = credentials('jenkins-arm-client-secret')
-        ARM_SUBSCRIPTION_ID = credentials('jenkins-arm-subscription-id')
-        ARM_TENANT_ID = credentials('jenkins-arm-tenant-id')
+        ARM_CLIENT_ID       = '1dd4c0fc-ba75-4d2d-a63d-c68ff09aac64'
+        ARM_CLIENT_SECRET   = 'rP.8Q~kscGvzHyyeDz6ALVL6Bf13NmaKKcMNCaAr'
+        ARM_SUBSCRIPTION_ID = '4d5852fb-ad3c-41ce-9fd9-3527965dfd6d'
+        ARM_TENANT_ID       = '465caf12-973f-460b-a449-88a813dee2ba'
     }
 
     stages {
-        stage('Print Azure Credentials') {
-            steps {
-                echo "Client ID: ${env.ARM_CLIENT_ID}"
-                echo "Tenant ID: ${env.ARM_TENANT_ID}"
-                echo "Subscription ID: ${env.ARM_SUBSCRIPTION_ID}"
-            }
-        }
-
-        stage('Azure Login') {
+        stage('Show Azure Environment Variables') {
             steps {
                 sh '''
-                    set -ex
-                    az login --service-principal \
-                        --username "$ARM_CLIENT_ID" \
-                        --password "$ARM_CLIENT_SECRET" \
-                        --tenant "$ARM_TENANT_ID"
-                    
-                    az account set --subscription "$ARM_SUBSCRIPTION_ID"
-                    az account show
+                    echo "Client ID: $ARM_CLIENT_ID"
+                    echo "Tenant ID: $ARM_TENANT_ID"
+                    echo "Subscription ID: $ARM_SUBSCRIPTION_ID"
                 '''
             }
         }
 
         stage('Terraform Init') {
             steps {
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh '''
-                        set -ex
-                        terraform init
-                        echo "Terraform Init Exit Code: $?"
-                    '''
-                }
-            }
-        }
-
-        stage('Terraform Validate') {
-            steps {
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh '''
-                        set -ex
-                        terraform validate
-                        echo "Terraform Validate Exit Code: $?"
-                    '''
-                }
+                sh 'terraform init'
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh '''
-                        set -ex
-                        terraform plan -out=tfplan.out
-                        echo "Terraform Plan Exit Code: $?"
-                    '''
-                }
+                sh 'terraform plan'
             }
         }
-
-        stage('Terraform Apply') {
-            steps {
-                input message: 'Approve to Apply Terraform Changes?'
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh '''
-                        set -ex
-                        terraform apply -auto-approve tfplan.out
-                        echo "Terraform Apply Exit Code: $?"
-                    '''
-                }
-            }
-        }
-    }
-
-    post {
-        success {
-            echo '✅ Terraform Pipeline Completed Successfully!'
-        }
-        failure {
-            echo '❌ Pipeline failed! Check the above logs.'
-        }
-        always {
-            echo '📦 Pipeline finished.'
-        }
-    }
 }
 
