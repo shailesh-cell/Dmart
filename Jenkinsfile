@@ -40,8 +40,7 @@ pipeline {
           export ARM_CLIENT_SECRET=$ARM_CLIENT_SECRET
           export ARM_SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_ID
           export ARM_TENANT_ID=$ARM_TENANT_ID
-          terraform apply -var-file="terraform.tfvars"
-        '''
+          terraform apply
       }
     }
   }
