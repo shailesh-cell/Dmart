@@ -1,11 +1,24 @@
-variable "resource_group_name" {
-  description = "Name of the resource group"
+variable "product" {
   type        = string
-  default     = "dmart-rg"
+  description = "Name of the product"
 }
 
-variable "location" {
-  description = "Azure region"
+variable "environment" {
   type        = string
-  default     = "East US"
+  description = "Environment name like dev, prod, uat"
+}
+
+variable "purpose" {
+  type        = string
+  description = "Purpose of the resource group"
+}
+
+variable "region_short" {
+  type        = string
+  description = "Short name for the Azure region (e.g., eus for East US)"
+}
+
+variable "instance_number" {
+  type        = number
+  description = "Instance number of the deployment"
 }

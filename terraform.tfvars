@@ -1,2 +1,5 @@
-resource_group_name = "jenkins-demo-rg"
-location            = "East US"
+product         = "webapp"
+environment     = "dev"
+purpose         = "backend"
+region_short    = "eus"
+instance_number = 1

@@ -1,4 +1,4 @@
-resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group_name
-  location = var.location
+resource "azurerm_resource_group" "main" {
+  name     = "${var.product}-${var.environment}-${var.purpose}-rg-${var.region_short}-${var.instance_number}"
+  location = "East US"  # You can also make this dynamic if needed
 }
