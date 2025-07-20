@@ -11,67 +11,50 @@ pipeline {
   stages {
     stage('Terraform Init') {
       steps {
-        sh '''
-          export ARM_CLIENT_ID=$ARM_CLIENT_ID
-          export ARM_CLIENT_SECRET=$ARM_CLIENT_SECRET
-          export ARM_SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_ID
-          export ARM_TENANT_ID=$ARM_TENANT_ID
-          terraform init
-        '''
+        sh 'terraform init'
       }
     }
 
     stage('Terraform Plan') {
       steps {
-        sh '''
-          export ARM_CLIENT_ID=$ARM_CLIENT_ID
-          export ARM_CLIENT_SECRET=$ARM_CLIENT_SECRET
-          export ARM_SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_ID
-          export ARM_TENANT_ID=$ARM_TENANT_ID
-          terraform plan -var-file="terraform.tfvars"
-        '''
+        sh 'terraform plan -var-file="terraform.tfvars"'
       }
     }
 
-    stage('Approve Terraform Apply') {
+    stage('Security Scan - tfsec') {
       steps {
-        script {
-          input message: 'Do you want to apply Terraform changes?', ok: 'Yes, apply'
-        }
+        sh 'tfsec .'
+      }
+    }
+
+    stage('Security Scan - Trivy') {
+      steps {
+        sh 'trivy config .'
+      }
+    }
+
+    stage('Approve Apply') {
+      steps {
+        input message: 'Do you want to APPLY the Terraform changes?'
       }
     }
 
     stage('Terraform Apply') {
       steps {
-        sh '''
-          export ARM_CLIENT_ID=$ARM_CLIENT_ID
-          export ARM_CLIENT_SECRET=$ARM_CLIENT_SECRET
-          export ARM_SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_ID
-          export ARM_TENANT_ID=$ARM_TENANT_ID
-          terraform apply -auto-approve -var-file="terraform.tfvars"
-        '''
+        sh 'terraform apply -var-file="terraform.tfvars" -auto-approve'
       }
     }
 
-    stage('Approve Terraform Destroy') {
+    stage('Destroy Approval') {
       steps {
-        script {
-          input message: 'Do you want to destroy Terraform resources?', ok: 'Yes, destroy'
-        }
+        input message: 'Destroy resources?'
       }
     }
 
     stage('Terraform Destroy') {
       steps {
-        sh '''
-          export ARM_CLIENT_ID=$ARM_CLIENT_ID
-          export ARM_CLIENT_SECRET=$ARM_CLIENT_SECRET
-          export ARM_SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_ID
-          export ARM_TENANT_ID=$ARM_TENANT_ID
-          terraform destroy -auto-approve -var-file="terraform.tfvars"
-        '''
+        sh 'terraform destroy -var-file="terraform.tfvars" -auto-approve'
       }
     }
   }
 }
-
