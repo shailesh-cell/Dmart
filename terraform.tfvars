@@ -1,4 +1,4 @@
-product         = "webapp"
+product         = "jenkins"
 environment     = "dev"
 purpose         = "backend"
 region_short    = "eus"
