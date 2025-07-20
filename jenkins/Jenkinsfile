@@ -11,13 +11,25 @@ pipeline {
   stages {
     stage('Terraform Init') {
       steps {
-        sh 'terraform init'
+        sh '''
+          export ARM_CLIENT_ID=$ARM_CLIENT_ID
+          export ARM_CLIENT_SECRET=$ARM_CLIENT_SECRET
+          export ARM_SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_ID
+          export ARM_TENANT_ID=$ARM_TENANT_ID
+          terraform init
+        '''
       }
     }
 
     stage('Terraform Plan') {
       steps {
-        sh 'terraform plan -var-file="terraform.tfvars"'
+        sh '''
+          export ARM_CLIENT_ID=$ARM_CLIENT_ID
+          export ARM_CLIENT_SECRET=$ARM_CLIENT_SECRET
+          export ARM_SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_ID
+          export ARM_TENANT_ID=$ARM_TENANT_ID
+          terraform plan -var-file="terraform.tfvars"
+        '''
       }
     }
   }
